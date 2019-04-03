@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>我的购物车</title>
+
+    //这里是自己的angular.js的路径
+    <script src="plugins/angularjs/angular.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        td, th {
+            padding: 3px;
+            height: 50px;
+            width: 100px;
+            border: 1px solid gainsboro;
+            text-align: left;
+        }
+
+        .nav {
+            width: 800px;
+            text-align: right;
+        }
+
+        tbody tr td:nth-child(4) {
+            width: 200px;
+        }
+
+        tbody tr td:nth-child(4) button {
+            width: 30px;
+            height: 30px;
+        }
+
+        tbody tr td:nth-child(4) input {
+            width: 30px;
+            height: 30px;
+            border: 1px solid gainsboro;
+            border-radius: 5px;
+        }
+
+        .nav button {
+            width: 150px;
+            height: 40px;
+            background: red;
+            color: white;
+            border: 0;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 50px;
+            height: 30px;
+            background: blue;
+            border: 0;
+            border-radius: 5px;
+            color: white;
+
+        }
+
+        a {
+            text-decoration: none;
+        }
+    </style>
+    <script>
+        var myapp = angular.module("myapp", []);
+        myapp.controller("myCtrl", function ($scope) {
+            //自拟商品信息
+            $scope.data = [{"name": "qq", "price": 12.9, "number": 1, done: false},
+                {"name": "wx", "price": 23.9, "number": 1, done: false},
+                {"name": "wx", "price": 99.9, "number": 1, done: false},
+                {"name": "wb", "price": 63.9, "number": 1, done: false}];
+            //点击加号的方法
+            $scope.add = function (index) {
+                $scope.data[index].number++;
+                $scope.sum();
+            }
+            //点击减号的方法
+            $scope.jian = function (index) {
+                //点击-操作时,当商品数量为1时，弹出对话框，询问是否移除
+                if ($scope.data[index].number == 1) {
+                    if (confirm("您是否将该商品移除购物车？")) {
+                        $scope.data[index].number--;
+                        $scope.data.splice(index,1);
+                        $scope.sum();
+                    }
+                } else if ($scope.data[index].number > 1) {
+                    $scope.data[index].number--;
+                    $scope.sum();
+
+                }
+            }
+
+            //计算商品总价的方法
+            $scope.sum = function () {
+                $scope.allMoney = 0;
+                for (var i = 0; i < $scope.data.length; i++) {
+                    $scope.allMoney += $scope.data[i].price * $scope.data[i].number;
+                }
+            }
+            $scope.sum();
+            //点击输入框的方法
+            $scope.dianji = function () {
+                $scope.sum();
+            }
+            $scope.shopping = false;
+            //默认全选是不选的
+            $scope.check = false;
+            //删除全部商品的方法
+            $scope.delAll = function (check) {
+
+                $scope.checkD(check);
+            }
+            $scope.checkD = function (state) {
+                for (var i = 0; i < $scope.data.length; i++) {
+                    $scope.data[i].done = state;
+                }
+            }
+            //下面的选框代表
+            $scope.checkSS = false;
+            $scope.checkS = function () {
+                $scope.flag = 0;
+                for (var i = 0; i < $scope.data.length; i++) {
+                    if ($scope.data[i].done == true) {
+                        $scope.flag++;
+                        $scope.checkSS = true;
+                    }
+                }
+                //实现当下面全部选中，全选框选中的效果
+                if ($scope.flag == $scope.data.length) {
+                    $scope.check = true;
+                } else {
+                    $scope.check = false;
+                }
+            }
+            //判断全选框下面的多选框有几个的方法
+            //清空购物车的方法
+            $scope.clearShpooing = function () {
+                if ($scope.check == true || $scope.checkSS == true) {
+                    for (var i = 0; i < $scope.data.length; i++) {
+                        if ($scope.data[i].done == true) {
+                            $scope.data.splice(i--, 1);
+                            if ($scope.data.length == 0) {
+                                $scope.show = false;
+                                $scope.shopping = true;
+                            }
+                            $scope.sum();
+                        }
+                    }
+                    if ($scope.check == true) {
+                        $scope.data.length = 0;
+                        $scope.show = false;
+                        $scope.shopping = true;
+                    }
+                } else {
+                    alert("请先选择要操作的商品");
+                }
+
+            }
+            $scope.show = true;
+            $scope.remove = function (index) {
+                $scope.data.splice(index, 1);
+                if ($scope.data.length == 0) {
+                    $scope.show = false;
+                    $scope.shopping = true;
+                }
+            }
+            //点击去逛商城的代码
+            $scope.showS=function () {
+                $scope.show = true;
+                $scope.check=false;
+            }
+        });
+    </script>
+
+
+</head>
+<body ng-app="myapp" ng-controller="myCtrl">
+<h1>我的购物车</h1>
+<p ng-show="shopping">您的购物车为空<a href="#" ng-click="showS()">去逛商城</a></p>
+<div class="nav">
+    <button ng-click="clearShpooing()" ng-show="show">清空购物车</button>
+</div>
+<!--创建购物车列表-->
+<table ng-show="show">
+    <thead>
+    <th><input type="checkbox" ng-model="check" ng-click="delAll(check)"></th>
+    <th>name</th>
+    <th>price</th>
+    <th>number</th>
+    <th>totalprice</th>
+    <th>option</th>
+    </thead>
+    <tbody>
+    <!--ng-repeat渲染数据到界面-->
+    <tr ng-repeat="item in data">
+        <td><input type="checkbox" ng-model="item.done" ng-click="checkS()"></td>
+        <td>{{item.name}}</td>
+        <td>{{item.price | currency:"￥"}}</td>
+        <td>
+            <button ng-click="jian($index)">-</button>
+            <input type="text" ng-model="item.number" ng-checked="dianji()">
+            <button ng-click="add($index)">+</button>
+        </td>
+        <td>{{item.price*item.number |currency:"￥"}}</td>
+        <td>
+            <button ng-click="remove($index)">删除</button>
+        </td>
+    </tbody>
+    <tfoot>
+    <tr>
+        <!--价钱起前面加"￥"-->
+        <td colspan="6">总价为:{{allMoney | currency:"￥"}}</td>
+    </tr>
+    </tfoot>
+</table>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html ng-app="App">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="plugins/angularjs/angular.min.js"></script>
+</head>
+<script>
+    $scope.choseArr=[];//定义数组用于存放前端显示
+    var str="";//
+    var flag='';//是否点击了全选，是为a
+    $scope.x=false;//默认未选中
+
+    $scope.all= function (c,v) {//全选
+        if(c==true){
+            $scope.x=true;
+            $scope.choseArr=[""];
+        }else{
+            $scope.x=false;
+            for(var i=0;i<v.length;i++){
+                $scope.choseArr[i]=''+v[i].id+'';
+            }
+        }
+
+        flag='a';
+        console.log($scope.choseArr);
+    };
+    $scope.chk= function (z,x) {//单选或者多选
+        if(flag=='a') {//在全选的基础上操作
+            str = $scope.choseArr.join(',') + ',';
+        }
+        if (x == true) {//选中
+            str = str + z + ',';
+        } else {
+            str = str.replace(z + ',', '');//取消选中
+        }
+
+        $scope.choseArr=(str.substr(0,str.length-1)).split(',');
+        console.log($scope.choseArr);
+    };
+    $scope.deletes= function () {// 操作CURD
+
+        if($scope.choseArr[0]==""||$scope.choseArr.length==0){//没有选择一个的时候提示
+            alert("请至少选中一条数据在操作！")
+            return;
+        };
+
+        for(var i=0;i<$scope.choseArr.length;i++){
+            //alert($scope.choseArr[i]);
+            console.log($scope.choseArr[i]);//遍历选中的id
+        }
+    };
+</script>
+<body ng-controller="Demo">
+<table border="2px" cellspacing="0">
+    <thead>
+    <tr>
+        <th style="width:100px;">
+            <label class="i-checks m-b-none">
+                <input type="checkbox" ng-model="master" ng-click="all(master,dataList1)"><i></i>
+            </label>
+            全选
+        </th>
+
+    </tr>
+    </thead>
+    <tr ng-repeat="d in dataList1 track by $index" >
+        <td>
+            <label class="i-checks m-b-none">
+                <input  type="checkbox" name="selected" ng-model="x" ng-checked="master" ng-click="chk(d.id,x)"><i></i>
+            </label>
+        </td>
+        <td ng-bind="d.id"></td>
+        <td ng-bind="d.name"></td>
+    </tr>
+</table>
+</body>
+</html>
